@@ -15,20 +15,27 @@ class StartScreen(BackgroundWidget):
         layout = QVBoxLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignCenter)  # Выравнивание по центру
         layout.setContentsMargins(50, 50, 50, 50)  # Отступы от краев
-
         # Заголовок
+
+        font_id = QFontDatabase.addApplicationFont("Fonts/PressStart2P-Regular.ttf")
+        if font_id != -1:
+            font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+            custom_font = QFont(font_family, 24, QFont.Weight.Bold)
+        else:
+            custom_font = QFont("Arial", 24, QFont.Weight.Bold)
+
         title = QLabel("Игра в 15")
-        title.setFont(QFont("Arial", 24, QFont.Weight.Bold))
+        title.setFont(custom_font)
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title.setStyleSheet("""
-            QLabel {
-                color: #FF1493;
-                background: rgba(255, 255, 255, 0.7);
-                border-radius: 10px;
-                padding: 20px;
-                margin: 20px;
-            }
-        """)
+                   QLabel {
+                       color: #FF1493; 
+                       margin: 20px;
+                       background: rgba(255, 255, 255, 0.7);
+                       border-radius: 10px;
+                       padding: 20px;
+                   }
+               """)
 
         # Кнопка
         start_btn = QPushButton("Начать игру")
