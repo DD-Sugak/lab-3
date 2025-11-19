@@ -33,7 +33,7 @@ class GameScreen(BackgroundWidget):
 
     def preload_tile_images(self):
         """Предзагружает все картинки в память"""
-        for i in range(1, 16):
+        for i in range(1, 25):
             image_path = f"images/{i}.png"
             if os.path.exists(image_path):
                 pixmap = QPixmap(image_path)
@@ -50,22 +50,22 @@ class GameScreen(BackgroundWidget):
         info_layout = QHBoxLayout()
 
         self.time_label = QLabel("Время: 0:00.00")
-        self.time_label.setFont(QFont("Arial", 10))
+        self.time_label.setFont(QFont("Arial", 18))
         self.time_label.setStyleSheet("background: rgba(255, 255, 255, 0.7); padding: 3px; border-radius: 3px;")
 
         self.moves_label = QLabel(f"Ходы: {self.moves}")
-        self.moves_label.setFont(QFont("Arial", 10))
+        self.moves_label.setFont(QFont("Arial", 18))
         self.moves_label.setStyleSheet("background: rgba(255, 255, 255, 0.7); padding: 3px; border-radius: 3px;")
 
         back_btn = QPushButton("← Назад")
-        back_btn.setFont(QFont("Arial", 9))
+        back_btn.setFont(QFont("Arial", 18))
         back_btn.setStyleSheet("""
             QPushButton {
                 background-color: rgba(255, 255, 255, 0.3);
                 border: 1px solid rgba(255, 255, 255, 0.5);
                 border-radius: 5px;
                 padding: 5px 10px;
-                color: white;
+                color: black;
             }
             QPushButton:hover {
                 background-color: rgba(0, 0, 0, 0.3);
@@ -104,8 +104,8 @@ class GameScreen(BackgroundWidget):
         self.setLayout(layout)
 
     def create_tiles(self):
-        """Создает клетки с оптимизацией"""
-        # Оптимальные размеры для разных уровней
+        """Создает клетки """
+        # размеры для разных уровней
         size_config = {
             3: {'btn_size': 150, 'font_size': 16},
             4: {'btn_size': 120, 'font_size': 14},
@@ -206,7 +206,7 @@ class GameScreen(BackgroundWidget):
             self.update_display()
 
             if self.check_win():
-                self.show_victory_screen()
+                QTimer.singleShot(200, self.show_victory_screen)
 
     def update_display(self):
         """Оптимизированное обновление отображения"""
@@ -275,7 +275,7 @@ class GameScreen(BackgroundWidget):
             parent.addWidget(victory_screen)
             parent.setCurrentWidget(victory_screen)
 
-            victory_screen.play_again_btn.clicked.connect(lambda: self.restart_game(parent))
+            # ТОЛЬКО подключение кнопки "В меню"
             victory_screen.menu_btn.clicked.connect(lambda: self.go_to_menu(parent))
 
     def save_best_result(self):
@@ -318,49 +318,22 @@ class GameScreen(BackgroundWidget):
         except Exception as e:
             print(f"Ошибка при сохранении результатов: {e}")
 
-    def restart_game(self, stacked_widget):
-        """Перезапуск игры с той же сложностью"""
-        new_game_screen = GameScreen(self.grid_size)
-        current_index = stacked_widget.currentIndex()
-        stacked_widget.insertWidget(current_index, new_game_screen)
-        stacked_widget.setCurrentWidget(new_game_screen)
 
-        # Удаляем старый экран победы
-        stacked_widget.removeWidget(self)
+
 
     def go_to_menu(self, stacked_widget):
         """Возврат в главное меню"""
-        # Возвращаемся к экрану выбора уровня (индекс 1)
+        self.timer.stop()
         stacked_widget.setCurrentIndex(1)
-
-        # Обновляем экран выбора уровня чтобы показать актуальные результаты
-        main_window = self.get_main_window()
-        if main_window:
-            main_window.update_level_screen()
-
-        # Удаляем все экраны после выбора уровня
-        while stacked_widget.count() > 2:
-            widget = stacked_widget.widget(2)
-            stacked_widget.removeWidget(widget)
-
-    def get_main_window(self):
-        """Возвращает ссылку на главное окно"""
-        parent = self.parent()
-        while parent:
-            if isinstance(parent, QMainWindow):
-                return parent
-            parent = parent.parent()
-        return None
+        stacked_widget.removeWidget(self)
 
     def go_back(self):
         """Возврат к выбору уровня"""
         self.timer.stop()
+
         parent = self.parent()
         while parent and not isinstance(parent, QStackedWidget):
             parent = parent.parent()
         if parent:
-            # Удаляем все игровые экраны
-            while parent.count() > 2:
-                widget = parent.widget(2)
-                parent.removeWidget(widget)
             parent.setCurrentIndex(1)
+            parent.removeWidget(self)
