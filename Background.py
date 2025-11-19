@@ -11,12 +11,9 @@ class BackgroundWidget(QWidget):
         self.background_pixmap = None
 
     def set_background(self, image_path):
-        """Устанавливает фоновое изображение"""
         if os.path.exists(image_path):
             self.background_pixmap = QPixmap(image_path)
             self.update()
-        else:
-            print(f"Фоновое изображение не найдено: {image_path}")
 
     def paintEvent(self, event):
         """Заполняет весь виджет изображением (как background-size: cover)"""

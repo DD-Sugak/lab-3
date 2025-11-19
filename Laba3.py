@@ -1,12 +1,11 @@
 import sys
 import os
-import json
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QStackedWidget)
+from PyQt6.QtCore import  QTimer
 
 from GameScreen import GameScreen
 from StartScreen import StartScreen
 from LevelScreen import LevelScreen
-
 
 
 class Game15(QMainWindow):
@@ -16,7 +15,7 @@ class Game15(QMainWindow):
         super().__init__()
         self.setWindowTitle("Игра в 15")
         self.setMinimumSize(700, 700)
-        self.background_image = "images/background.png"  # Убедитесь что файл существует
+        self.background_image = "images/background.png"
         self.setup_ui()
         self.set_background()
 
@@ -42,6 +41,7 @@ class Game15(QMainWindow):
             print(f"Фоновое изображение не найдено: {self.background_image}")
 
     def connect_signals(self):
+
         self.start_screen.start_button.clicked.connect(self.show_level_screen)
 
         for size, button in self.level_screen.buttons.items():
@@ -59,12 +59,24 @@ class Game15(QMainWindow):
 
     def start_game(self, grid_size):
         """Запуск игры с выбранным размером поля"""
+        # Показываем индикатор загрузки
+        self.level_screen.show_loading(grid_size)
+
+        # Запускаем игру с небольшой задержкой
+        QTimer.singleShot(100, lambda: self.create_game_screen(grid_size))
+
+
+    def create_game_screen(self, grid_size):
+        """Создает и показывает игровой экран"""
         game_screen = GameScreen(grid_size)
         self.stacked_widget.addWidget(game_screen)
         self.stacked_widget.setCurrentWidget(game_screen)
 
         # Устанавливаем фон для игрового экрана
         game_screen.set_background(self.background_image)
+
+        # Скрываем индикатор загрузки
+        self.level_screen.hide_loading()
 
 
 def main():
